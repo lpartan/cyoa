@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The New Manager – An IELTS Adventure</title>
+<style>
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #f5e6c0;
+    --teal: #1a5276;
+    --teal-light: #d6eaf8;
+    --bg: #f4f6f9;
+    --card: #ffffff;
+    --text: #2c2c2c;
+    --muted: #6b6b6b;
+    --border: #d5d8dc;
+    --finance: #1a7a3c;
+    --professionalism: #1a5276;
+    --accountability: #7d3c98;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Georgia, 'Times New Roman', serif; background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.75; }
+
+  #header { background: var(--teal); color: white; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+  #header h1 { font-size: 1.05rem; font-weight: normal; letter-spacing: 0.04em; }
+  #header .subtitle { font-size: 0.7rem; opacity: 0.75; font-family: Arial, sans-serif; }
+
+  #scorebar { display: flex; gap: 8px; background: white; border-bottom: 1px solid var(--border); padding: 10px 20px; font-family: Arial, sans-serif; font-size: 0.85rem; flex-wrap: wrap; }
+  .score-pill { display: flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-weight: bold; min-width: 100px; justify-content: center; }
+  .score-finance        { background: #eafaf1; color: var(--finance);        border: 1px solid #a9dfbf; }
+  .score-professionalism{ background: #d6eaf8; color: var(--professionalism); border: 1px solid #85c1e9; }
+  .score-accountability { background: #f5eef8; color: var(--accountability); border: 1px solid #d2b4de; }
+  .score-bar-fill { display: flex; gap: 3px; margin-left: 4px; }
+  .pip { width: 12px; height: 12px; border-radius: 50%; }
+  .pip.on.finance        { background: var(--finance); }
+  .pip.on.professionalism{ background: var(--professionalism); }
+  .pip.on.accountability { background: var(--accountability); }
+  .pip.off { background: #ddd; }
+
+  #main { max-width: 780px; margin: 0 auto; padding: 24px 16px 60px; }
+
+  .scene-card { background: var(--card); border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; border: 1px solid var(--border); animation: fadeIn 0.35s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .scene-header { background: var(--teal); color: white; padding: 18px 24px 14px; }
+  .scene-number { font-size: 0.7rem; font-family: Arial, sans-serif; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.75; margin-bottom: 4px; }
+  .scene-title { font-size: 1.3rem; font-weight: bold; }
+
+  .pivot-card .scene-header { background: linear-gradient(160deg, #1a1a2e 0%, #2c3e50 100%); padding: 28px 24px 20px; text-align: center; }
+  .pivot-card .scene-header::after { content: "🏥"; display: block; font-size: 2rem; margin-top: 10px; }
+  .pivot-card .scene-body { background: #f8f9fa; border-left: 4px solid #2c3e50; }
+
+  .bridge-card .scene-header { background: linear-gradient(135deg, #1a5276 0%, #2980b9 100%); padding: 24px 24px 18px; text-align: center; }
+
+  .scene-body { padding: 22px 24px; font-size: 0.98rem; line-height: 1.8; }
+  .scene-body strong { color: var(--teal); }
+  .scene-body em { color: var(--muted); font-style: italic; }
+  .scene-body ul { padding-left: 20px; margin-top: 8px; }
+  .scene-body li { margin-bottom: 6px; }
+
+  .gold-box { margin: 20px 24px; border: 2px solid var(--gold); border-radius: 10px; overflow: hidden; }
+  .gold-header { background: var(--gold); color: white; padding: 8px 16px; font-family: Arial, sans-serif; font-size: 0.75rem; font-weight: bold; letter-spacing: 0.08em; text-transform: uppercase; }
+  .gold-body { background: var(--gold-light); padding: 14px 16px; }
+  .gold-word { font-size: 1.15rem; font-weight: bold; color: #7a5c00; }
+  .gold-pos { font-family: Arial, sans-serif; font-size: 0.75rem; color: var(--muted); font-style: italic; margin-left: 4px; }
+  .gold-meaning { margin-top: 6px; font-size: 0.9rem; color: #5a4000; }
+  .gold-collocations { margin-top: 8px; font-size: 0.85rem; color: #5a4000; font-family: Arial, sans-serif; }
+  .gold-collocations span { display: block; padding: 2px 0; }
+  .gold-collocations span::before { content: "• "; color: var(--gold); font-weight: bold; }
+
+  .options-section { padding: 0 24px 24px; }
+  .options-label { font-family: Arial, sans-serif; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 12px; padding-top: 4px; }
+  .option-btn { display: block; width: 100%; background: white; border: 2px solid var(--border); border-radius: 10px; padding: 14px 18px; margin-bottom: 10px; text-align: left; cursor: pointer; font-family: Georgia, serif; font-size: 0.93rem; line-height: 1.6; color: var(--text); transition: border-color 0.18s, background 0.18s, transform 0.12s; }
+  .option-btn:hover { border-color: var(--teal); background: var(--teal-light); transform: translateX(3px); }
+  .option-btn:active { transform: translateX(1px); }
+  .option-btn.back-btn { border-color: var(--muted); color: var(--muted); font-style: italic; background: #f7f7f7; }
+  .option-btn.back-btn:hover { border-color: var(--text); background: #efefef; color: var(--text); }
+
+  .delta-tag { display: inline-block; font-family: Arial, sans-serif; font-size: 0.72rem; font-weight: bold; padding: 2px 7px; border-radius: 20px; margin-left: 5px; white-space: nowrap; vertical-align: middle; }
+  .delta-pos { background: #eafaf1; color: var(--finance); }
+  .delta-neg { background: #fdecea; color: #c62828; }
+  .option-deltas { margin-top: 8px; font-family: Arial, sans-serif; font-size: 0.75rem; display: flex; flex-wrap: wrap; gap: 4px; }
+
+  #back-btn { display: none; margin-bottom: 14px; background: none; border: 1px solid var(--border); border-radius: 8px; padding: 7px 14px; font-family: Arial, sans-serif; font-size: 0.8rem; color: var(--muted); cursor: pointer; transition: background 0.15s, color 0.15s; }
+  #back-btn:hover { background: white; color: var(--text); }
+
+  .ending-card .scene-header { background: linear-gradient(135deg, #1a3a4a, #2c3e50); text-align: center; padding: 28px 24px 20px; }
+  .ending-emoji { font-size: 2.8rem; display: block; margin-bottom: 8px; }
+  .ending-subtitle { font-style: italic; opacity: 0.75; font-size: 0.9rem; margin-top: 4px; }
+
+  .gold-log { margin: 20px 24px; border: 2px solid var(--gold); border-radius: 10px; overflow: hidden; }
+  .gold-log-header { background: var(--gold); color: white; padding: 8px 16px; font-family: Arial, sans-serif; font-size: 0.75rem; font-weight: bold; letter-spacing: 0.08em; text-transform: uppercase; }
+  .gold-log-body { background: var(--gold-light); padding: 14px 16px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .gold-log-word { background: var(--gold); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; }
+
+  .journey-log { margin: 0 24px 20px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .journey-log-header { background: #f0f0f0; padding: 8px 16px; font-family: Arial, sans-serif; font-size: 0.75rem; font-weight: bold; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .journey-log-body { padding: 14px 16px; font-size: 0.87rem; line-height: 1.7; font-family: Arial, sans-serif; color: var(--muted); }
+  .journey-step { display: flex; align-items: flex-start; gap: 8px; padding: 4px 0; border-bottom: 1px solid #f0f0f0; }
+  .journey-step:last-child { border-bottom: none; }
+  .journey-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); margin-top: 6px; flex-shrink: 0; }
+
+  .restart-btn { display: block; margin: 0 24px 24px; padding: 14px; background: var(--teal); color: white; border: none; border-radius: 10px; font-family: Georgia, serif; font-size: 1rem; cursor: pointer; text-align: center; transition: opacity 0.15s; }
+  .restart-btn:hover { opacity: 0.88; }
+
+  .intro-card .scene-header { background: linear-gradient(135deg, var(--teal), #0d3b5e); text-align: center; padding: 30px 24px 24px; }
+  .intro-card .scene-title { font-size: 1.6rem; }
+
+  @media (max-width: 500px) {
+    .scene-body { padding: 16px; }
+    .options-section { padding: 0 16px 20px; }
+    .gold-box, .gold-log, .journey-log { margin: 14px 16px; }
+    .scene-header { padding: 14px 16px 12px; }
+    .restart-btn { margin: 0 16px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div>
+    <div class="subtitle">An IELTS Choose-Your-Own-Adventure</div>
+    <h1>The New Manager</h1>
+  </div>
+  <div id="scene-id-display" style="font-family:Arial,sans-serif;font-size:0.72rem;opacity:0.6;text-align:right;"></div>
+</div>
+
+<div id="scorebar">
+  <div class="score-pill score-finance">💰 Finance <span id="pips-finance" class="score-bar-fill"></span></div>
+  <div class="score-pill score-professionalism">🏥 Professional <span id="pips-professionalism" class="score-bar-fill"></span></div>
+  <div class="score-pill score-accountability">📋 Accountability <span id="pips-accountability" class="score-bar-fill"></span></div>
+</div>
+
+<div id="main">
+  <button id="back-btn" onclick="goBack()">← Go back and choose again</button>
+  <div id="scene-container"></div>
+</div>
+
+<script>
+const scenes = {
+
+  intro: {
+    id:"intro", isIntro:true, title:"The New Manager",
+    body:`You have just been appointed manager of the International Medical Centre in Thủ Dầu Một — a modern, well-equipped hospital that serves both local Vietnamese patients and the growing population of foreign workers in Bình Dương Province.<br><br>
+It is your first Monday morning. You park your motorbike, straighten your lanyard, and walk through the front doors.<br><br>
+Three people are already waiting outside your office. Each one has a different problem. Each one needs an answer today.<br><br>
+You have three scores to manage:
+<ul>
+<li>💰 <strong>Finance (starts at 5):</strong> The hospital budget. If it hits 0, services are cut.</li>
+<li>🏥 <strong>Professionalism (starts at 5):</strong> Staff trust and standards. If it hits 0, the team falls apart.</li>
+<li>📋 <strong>Accountability (starts at 5):</strong> Your reputation with the board and the community. If it hits 0, you are dismissed.</li>
+</ul>`,
+    gold:null,
+    options:[{text:"Begin →", delta:{}, next:"s1"}]
+  },
+
+  s1: {
+    id:"s1", title:"Scene 1: The First Morning",
+    body:`Three people are waiting outside your office. First is Dr. Hằng, the head of nursing — she looks exhausted and holds a report about staff overtime. Second is Mr. Tùng from the finance department — he is holding a spreadsheet and frowning. Third is a local community leader named Mrs. Bích — she has a formal letter of complaint about how the hospital treated her elderly neighbour last week.<br><br>
+You are <strong>accountable</strong> to all three of them. But you only have time to deal with one problem properly this morning. The other two will have to wait until the afternoon.`,
+    gold:{word:"accountable",pos:"adj",meaning:"Required or expected to justify actions or decisions; responsible to someone or for something.",collocations:["held accountable for the decision","accountable to the board","fully accountable for patient care"]},
+    options:[
+      {text:"Option A: See Dr. Hằng first. Staff welfare affects everything — without the nurses, nothing works.",delta:{professionalism:1,finance:-1},next:"s2"},
+      {text:"Option B: See Mr. Tùng first. You cannot manage the hospital without understanding the money.",delta:{finance:1,accountability:-1},next:"s3"},
+      {text:"Option C: See Mrs. Bích first. The community's trust is the foundation of the hospital's future.",delta:{accountability:1,professionalism:-1},next:"s4"}
+    ]
+  },
+
+  s2: {
+    id:"s2", title:"Scene 2: The Overtime Crisis",
+    body:`Dr. Hằng's report is clear: the nursing staff are working an average of sixty-two hours a week. Three nurses have already resigned this month. "If we do not <strong>allocate</strong> more money to hire temporary staff," she says, "we will lose five more by Friday."<br><br>
+You look at the budget figures on your phone. The money exists — but it was already set aside for new diagnostic equipment that the board approved last quarter. Spending it now means delaying the equipment by six months. The board will not be happy.`,
+    gold:{word:"allocate",pos:"v",meaning:"To distribute resources or duties for a specific purpose.",collocations:["allocate funds to the department","allocate resources efficiently","allocate staff to the night shift"]},
+    options:[
+      {text:"Option A: Allocate the emergency funds to hire three temporary nurses immediately.",delta:{professionalism:2,finance:-2},next:"s5"},
+      {text:"Option B: Ask the existing staff to hold on for two more weeks while you find another solution.",delta:{professionalism:-1,accountability:1},next:"s5"},
+      {text:"Option C: Propose a voluntary overtime bonus instead — it costs less and may keep people motivated.",delta:{finance:-1,professionalism:1},next:"s5"}
+    ]
+  },
+
+  s3: {
+    id:"s3", title:"Scene 3: The Budget Warning",
+    body:`Mr. Tùng slides the spreadsheet across the desk. "The hospital is spending twenty percent above budget," he says. "If this continues, within four months the situation will <strong>deteriorate</strong> to a point where we cannot pay our suppliers. The pharmaceutical company has already sent one warning letter."<br><br>
+He suggests three possible cuts. Each one saves money. Each one has a cost.`,
+    gold:{word:"deteriorate",pos:"v",meaning:"To become progressively worse in quality or condition.",collocations:["the situation will deteriorate rapidly","patient care should not deteriorate","the building has deteriorated over time"]},
+    options:[
+      {text:"Option A: Cut the free community health clinic that runs every Saturday morning.",delta:{finance:2,accountability:-2},next:"s5"},
+      {text:"Option B: Reduce the cleaning schedule from twice daily to once daily in non-clinical areas.",delta:{finance:1,professionalism:-1},next:"s5"},
+      {text:"Option C: Freeze all non-essential equipment purchases for three months and review.",delta:{finance:1,accountability:1},next:"s5"}
+    ]
+  },
+
+  s4: {
+    id:"s4", title:"Scene 4: The Community Complaint",
+    body:`Mrs. Bích's letter describes how her neighbour — an elderly man named Mr. Lộc — was asked to pay a deposit before receiving treatment last week. He did not have the money. He waited four hours and was then sent home without being seen. He is now in a different hospital with a serious infection.<br><br>
+"This hospital is supposed to serve our community," Mrs. Bích says quietly. "But it does not feel <strong>transparent</strong> about who it is really for."`,
+    gold:{word:"transparent",pos:"adj",meaning:"Open, honest and not hiding information; easy to understand and free from deception.",collocations:["transparent about the costs","a transparent process","transparent communication with patients"]},
+    options:[
+      {text:"Option A: Apologise formally, visit Mr. Lộc in the other hospital, and waive all his fees.",delta:{accountability:2,finance:-1},next:"s5"},
+      {text:"Option B: Investigate the incident quietly before making any public statement.",delta:{accountability:-1,professionalism:1},next:"s5"},
+      {text:"Option C: Invite Mrs. Bích to join a new Community Advisory Committee that you will create.",delta:{accountability:2,professionalism:1},next:"s5"}
+    ]
+  },
+
+  s5: {
+    id:"s5", title:"Scene 5: The Protocol Breach",
+    body:`At two o'clock, a report lands on your desk. Last Tuesday, a junior nurse named Nurse Phương administered the wrong dosage of a blood pressure medication to a patient. The patient is recovering, but the error happened because Nurse Phương skipped the standard double-check <strong>protocol</strong>.<br><br>
+Nurse Phương is young. She made a mistake in her first month. How you handle this will be watched carefully by the entire nursing team.`,
+    gold:{word:"protocol",pos:"n",meaning:"An official set of rules or procedures governing affairs or professional behaviour.",collocations:["follow the correct protocol","a breach of protocol","standard medical protocol"]},
+    options:[
+      {text:"Option A: Issue a formal written warning and require Nurse Phương to repeat her safety training.",delta:{accountability:1,professionalism:1},next:"s6"},
+      {text:"Option B: Handle it informally — a private conversation and additional supervision for one month.",delta:{professionalism:1,accountability:-1},next:"s6"},
+      {text:"Option C: Immediately suspend Nurse Phương pending a full investigation.",delta:{accountability:2,professionalism:-2},next:"s6"}
+    ]
+  },
+
+  s6: {
+    id:"s6", title:"Scene 6: The Whistleblower",
+    body:`On Thursday morning, you receive an anonymous email. It is from someone inside the hospital. They say that a senior doctor — Dr. Minh — has been inflating the costs of private consultations and pocketing the difference. The email includes scanned receipts.<br><br>
+If the allegations are true, this is a serious matter of professional ethics. If they are false, acting on them could destroy a good doctor's reputation. You need a <strong>mediator</strong> — someone trusted by both sides — before you do anything else.`,
+    gold:{word:"mediator",pos:"n",meaning:"A person who attempts to bring about agreement between people or groups in conflict.",collocations:["act as a mediator between the parties","an independent mediator","appoint a mediator to resolve the dispute"]},
+    options:[
+      {text:"Option A: Contact the provincial health authority and ask them to send an independent mediator.",delta:{accountability:2,professionalism:1},next:"s7"},
+      {text:"Option B: Confront Dr. Minh directly and privately — give him a chance to explain before escalating.",delta:{professionalism:1,accountability:-1},next:"s7"},
+      {text:"Option C: Ignore the email for now. Anonymous accusations without verification are dangerous.",delta:{finance:1,accountability:-2},next:"s7"}
+    ]
+  },
+
+  s7: {
+    id:"s7", title:"Scene 7: The Board Review",
+    isCheckpoint:true,
+    body:`The board of directors meets on Friday afternoon. All five members are present. The room is formal and air-conditioned and very quiet.<br><br>
+The chairwoman opens her folder. "We have received reports about the overtime situation, the budget position, the community complaint, the protocol breach, and the whistleblower allegation," she says. "We need a <strong>comprehensive</strong> response. Not partial answers. Not promises. A complete picture."<br><br>
+She looks at you. "You have been in this role for one week. Tell us: are you the right person for this job?"<br><br>
+<em>Your answer depends on what you have done — and what your scores say about how you have managed so far.</em>`,
+    gold:{word:"comprehensive",pos:"adj",meaning:"Including or dealing with all or nearly all elements or aspects of something; thorough.",collocations:["a comprehensive review of the situation","a comprehensive plan for improvement","comprehensive training for all staff"]},
+    options:[
+      {text:"Option A: Present your financial decisions. Argue that a hospital without money cannot serve anyone.",delta:{},next:"s7_finance",isScoreCheck:true,metric:"finance"},
+      {text:"Option B: Present your staff decisions. Argue that a hospital without good people cannot function.",delta:{},next:"s7_professionalism",isScoreCheck:true,metric:"professionalism"},
+      {text:"Option C: Present your community and ethics decisions. Argue that accountability is the foundation of trust.",delta:{},next:"s7_accountability",isScoreCheck:true,metric:"accountability"}
+    ]
+  },
+
+  s7_finance:        { id:"s7_finance",        _scoreCheck:true, metric:"finance",        passNext:"s8", failNext:"s8" },
+  s7_professionalism:{ id:"s7_professionalism", _scoreCheck:true, metric:"professionalism",passNext:"s8", failNext:"s8" },
+  s7_accountability: { id:"s7_accountability",  _scoreCheck:true, metric:"accountability", passNext:"s8", failNext:"s8" },
+
+  s8: {
+    id:"s8", title:"Scene 8: The Woman at the Door",
+    isPivot:true,
+    body:`It is eleven o'clock on Friday night. The board meeting ended two hours ago. You are still in your office, finishing your notes, when the emergency department calls.<br><br>
+An elderly woman has been brought in by a taxi driver who found her collapsed on the street near the market. She has no identification. She speaks only Vietnamese and a little French. She is frightened and in pain.<br><br>
+The admissions clerk calls you because there is no next of kin, no insurance, and no money. "What do we do?" he asks.<br><br>
+<em>The board has not made its final decision yet. It will come on Monday. Whatever you decide now, nobody on the board will know about it. There is no score attached to this moment. There is no protocol that covers it exactly.</em><br><br>
+It is just you, a frightened old woman, and a question about what kind of manager — and what kind of person — you are.`,
+    gold:{word:"sustainable",pos:"adj",meaning:"Able to be maintained at a certain rate or level; capable of continuing over time without causing harm.",collocations:["a sustainable approach to hospital management","sustainable staffing levels","a sustainable relationship with the community"]},
+    options:[
+      {text:"Option A: Admit her immediately, full treatment, no questions about payment tonight.",delta:{accountability:1,professionalism:1},next:"s8_check"},
+      {text:"Option B: Admit her for emergency stabilisation only and call the social welfare office in the morning.",delta:{finance:1},next:"s8_check"},
+      {text:"Option C: Ask the admissions clerk to follow standard protocol and document everything carefully.",delta:{accountability:1},next:"s8_check"}
+    ]
+  },
+
+  s8_check: { id:"s8_check", _endingCheck:true },
+
+  e1: {
+    id:"e1", isEnding:true, emoji:"🏆",
+    title:"Ending 1: The Trusted Manager",
+    ending_label:"The Trusted Manager",
+    subtitle:"Balance achieved — the hard way",
+    body:`The board meets on Monday morning. The chairwoman reads from a single page of notes. She looks up once, then finishes reading.<br><br>
+"We have reviewed your first week," she says. "It was not perfect. But it was <strong>accountable</strong>. It was honest. And it showed us that you understand what this hospital is actually for."<br><br>
+Your contract is confirmed for a full year. Dr. Minh's case is referred to an independent review. Nurse Phương completes her retraining and goes on to become one of the most careful nurses on the ward. Mrs. Bích's Community Advisory Committee meets for the first time in three weeks.<br><br>
+The elderly woman from Friday night — her name is Bà Lan — sends a hand-written note to the hospital. It says only: <em>"Cảm ơn." Thank you.</em><br><br>
+You keep it in your desk drawer.`
+  },
+
+  e2: {
+    id:"e2", isEnding:true, emoji:"📊",
+    title:"Ending 2: The Efficient Machine",
+    ending_label:"The Efficient Machine",
+    subtitle:"The numbers are good. Something else is not.",
+    body:`The board is satisfied with the financial position. "You have made difficult decisions quickly," the chairwoman says. "That is what we needed."<br><br>
+Your contract is confirmed. The budget is back on track. The equipment arrives on schedule.<br><br>
+But three of the senior nurses request transfers to other hospitals within the month. Mrs. Bích's complaint is archived without a formal response. The Saturday community clinic does not reopen.<br><br>
+The hospital is running well. It is <strong>comprehensive</strong> in its services and efficient in its systems. The waiting times are excellent. The review scores are high.<br><br>
+On quiet evenings, walking through the wards, you sometimes notice that the staff look at you carefully before they speak — choosing their words, checking your expression.<br><br>
+You are not sure when that started.`
+  },
+
+  e3: {
+    id:"e3", isEnding:true, emoji:"🚪",
+    title:"Ending 3: The Closed Door",
+    ending_label:"The Closed Door",
+    subtitle:"One week was not enough",
+    body:`The chairwoman's letter arrives by email at seven o'clock on Monday morning, before you have even had coffee.<br><br>
+"After careful review of your first week, the board has concluded that the hospital requires stronger leadership at this time. We thank you for your efforts and wish you well."<br><br>
+You sit in your car in the hospital car park for a long time. Through the windscreen you can see the front doors. Nurses are arriving for the morning shift. A family is walking in with flowers. An ambulance is pulling out.<br><br>
+The hospital keeps moving. It does not need you specifically. It just needs someone — someone <strong>accountable</strong>, someone <strong>transparent</strong>, someone who understands that a hospital is not a building. It is a promise.<br><br>
+<em>You drive home. On the way, you pass Mrs. Bích's neighbourhood. You think about stopping. You do not stop. But you think about it for a long time afterwards.</em>`
+  }
+
+};
+
+// ═══ STATE ═══
+let state = { finance:5, professionalism:5, accountability:5 };
+let history = [];
+let goldWords = [];
+let journeyLog = [];
+const MAX = 7;
+
+function clamp(v) { return Math.max(0, Math.min(MAX, v)); }
+
+function applyDelta(delta) {
+  if (!delta || typeof delta !== "object") return;
+  if ("finance"        in delta && delta.finance        !== 0) state.finance        = clamp(state.finance        + Number(delta.finance));
+  if ("professionalism"in delta && delta.professionalism!== 0) state.professionalism= clamp(state.professionalism+ Number(delta.professionalism));
+  if ("accountability" in delta && delta.accountability !== 0) state.accountability = clamp(state.accountability + Number(delta.accountability));
+}
+
+function updateScorebar() {
+  ['finance','professionalism','accountability'].forEach(m => {
+    const el = document.getElementById('pips-'+m);
+    el.innerHTML = '';
+    for (let i = 0; i < MAX; i++) {
+      const d = document.createElement('div');
+      d.className = 'pip ' + (i < state[m] ? 'on '+m : 'off');
+      el.appendChild(d);
+    }
+  });
+}
+
+function recordGold(scene) {
+  if (scene.gold && !goldWords.find(g => g.word === scene.gold.word)) {
+    goldWords.push(scene.gold);
+  }
+}
+
+function deltaDisplay(delta) {
+  if (!delta) return '';
+  const parts = [];
+  const labels = { finance:'💰', professionalism:'🏥', accountability:'📋' };
+  Object.entries(delta).forEach(([k,v]) => {
+    if (v !== 0) {
+      const cls = v > 0 ? 'delta-pos' : 'delta-neg';
+      parts.push(`<span class="delta-tag ${cls}">${labels[k]} ${v>0?'+':''}${v}</span>`);
+    }
+  });
+  return parts.join(' ');
+}
+
+function resolveEnding() {
+  const f = state.finance, p = state.professionalism, a = state.accountability;
+  if (f <= 2 && p <= 2 && a <= 2) return 'e3';
+  if (f <= 2 || p <= 2 || a <= 2) return 'e3';
+  if (f >= p && f >= a && f >= 5) return 'e2';
+  if (p >= 5 && a >= 5) return 'e1';
+  if (p >= f && p >= a) return 'e1';
+  return 'e2';
+}
+
+function render(sceneId) {
+  const scene = scenes[sceneId];
+  if (!scene) { console.warn('Unknown scene:', sceneId); render('intro'); return; }
+  document.getElementById('scene-id-display').textContent = sceneId.toUpperCase();
+
+  if (scene._scoreCheck) { render(state[scene.metric] >= 4 ? scene.passNext : scene.failNext); return; }
+  if (scene._endingCheck) { render(resolveEnding()); return; }
+
+  recordGold(scene);
+  updateScorebar();
+
+  document.getElementById('back-btn').style.display = history.length > 0 && !scene.isEnding ? 'block' : 'none';
+
+  let html = '';
+  if      (scene.isEnding) html = buildEnding(scene);
+  else if (scene.isIntro)  html = buildIntro(scene);
+  else if (scene.isPivot)  html = buildPivot(scene);
+  else if (scene.isBridge) html = buildBridge(scene);
+  else                     html = buildScene(scene);
+
+  document.getElementById('scene-container').innerHTML = html;
+  window.scrollTo({top:0, behavior:'smooth'});
+
+  document.querySelectorAll('[data-next]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const next = btn.dataset.next;
+      const deltaRaw = btn.dataset.delta ? JSON.parse(btn.dataset.delta) : {};
+      const optText = btn.dataset.opttext || '';
+      if (!scene.isEnding && next !== 's1') history.push(sceneId);
+      if (!scene.isEnding) {
+        applyDelta(deltaRaw);
+        if (optText) journeyLog.push({ scene: scene.title, choice: optText });
+      }
+      render(next);
+    });
+  });
+}
+
+function goBack() {
+  if (history.length > 0) { journeyLog.pop(); render(history.pop()); }
+}
+
+function goldHtml(gold) {
+  if (!gold) return '';
+  return `<div class="gold-box">
+    <div class="gold-header">⭐ IELTS Gold Rule</div>
+    <div class="gold-body">
+      <div><span class="gold-word">${gold.word}</span> <span class="gold-pos">(${gold.pos})</span></div>
+      <div class="gold-meaning">${gold.meaning}</div>
+      <div class="gold-collocations" style="margin-top:8px">${gold.collocations.map(c=>`<span>${c}</span>`).join('')}</div>
+    </div>
+  </div>`;
+}
+
+function optsHtml(options) {
+  return options.map(o => {
+    const dStr = JSON.stringify(o.delta||{});
+    const dDisp = deltaDisplay(o.delta||{});
+    const ec = o.isBack ? ' back-btn' : '';
+    return `<button class="option-btn${ec}" data-next="${o.next}" data-delta='${dStr}' data-opttext="${o.text.replace(/<[^>]+>/g,'').replace(/"/g,'&quot;').trim()}">
+      ${o.text}${dDisp ? `<div class="option-deltas">${dDisp}</div>` : ''}
+    </button>`;
+  }).join('');
+}
+
+function buildIntro(s) {
+  return `<div class="scene-card intro-card">
+    <div class="scene-header"><div class="scene-title">${s.title}</div></div>
+    <div class="scene-body">${s.body}</div>
+    <div class="options-section">${s.options.map(o=>`<button class="option-btn" data-next="${o.next}" data-delta='${JSON.stringify(o.delta)}' data-opttext="">${o.text}</button>`).join('')}</div>
+  </div>`;
+}
+
+function buildScene(s) {
+  return `<div class="scene-card">
+    <div class="scene-header"><div class="scene-number">Scene</div><div class="scene-title">${s.title}</div></div>
+    <div class="scene-body">${s.body}</div>
+    ${goldHtml(s.gold)}
+    <div class="options-section"><div class="options-label">What do you do?</div>${optsHtml(s.options)}</div>
+  </div>`;
+}
+
+function buildPivot(s) {
+  return `<div class="scene-card pivot-card">
+    <div class="scene-header"><div class="scene-number">The Moment</div><div class="scene-title">${s.title}</div></div>
+    <div class="scene-body">${s.body}</div>
+    ${goldHtml(s.gold)}
+    <div class="options-section"><div class="options-label">What do you do?</div>${optsHtml(s.options)}</div>
+  </div>`;
+}
+
+function buildBridge(s) {
+  return `<div class="scene-card bridge-card">
+    <div class="scene-header"><div class="scene-number">The Bridge</div><div class="scene-title">${s.title}</div></div>
+    <div class="scene-body">${s.body}</div>
+    ${goldHtml(s.gold)}
+    <div class="options-section"><div class="options-label">What do you do?</div>${optsHtml(s.options)}</div>
+  </div>`;
+}
+
+function buildEnding(s) {
+  const logHtml = goldWords.length > 0 ? `<div class="gold-log">
+    <div class="gold-log-header">⭐ Gold Words You Learned</div>
+    <div class="gold-log-body">${goldWords.map(g=>`<span class="gold-log-word">${g.word}</span>`).join('')}</div>
+  </div>` : '';
+
+  const jHtml = journeyLog.length > 0 ? `<div class="journey-log">
+    <div class="journey-log-header">📋 Your Journey</div>
+    <div class="journey-log-body">${journeyLog.map(j=>`<div class="journey-step"><div class="journey-dot"></div><div><strong>${j.scene}:</strong> ${j.choice.substring(0,100)}${j.choice.length>100?'...':''}</div></div>`).join('')}
+    </div></div>` : '';
+
+  const scoreHtml = `<div style="display:flex;gap:10px;padding:0 24px 18px;flex-wrap:wrap;font-family:Arial,sans-serif;font-size:0.85rem;">
+    <span style="background:#eafaf1;color:#1a7a3c;padding:4px 12px;border-radius:20px;border:1px solid #a9dfbf">💰 Finance: ${state.finance}/${MAX}</span>
+    <span style="background:#d6eaf8;color:#1a5276;padding:4px 12px;border-radius:20px;border:1px solid #85c1e9">🏥 Professional: ${state.professionalism}/${MAX}</span>
+    <span style="background:#f5eef8;color:#7d3c98;padding:4px 12px;border-radius:20px;border:1px solid #d2b4de">📋 Accountability: ${state.accountability}/${MAX}</span>
+  </div>`;
+
+  return `<div class="scene-card ending-card">
+    <div class="scene-header">
+      <span class="ending-emoji">${s.emoji}</span>
+      <div class="scene-title">${s.title}</div>
+      <div class="ending-subtitle">${s.subtitle}</div>
+    </div>
+    <div class="scene-body">${s.body}</div>
+    ${scoreHtml}${logHtml}${jHtml}
+    <div style="padding:0 24px 10px;font-family:Arial,sans-serif;font-size:0.82rem;color:var(--muted);font-style:italic;">
+      Use your gold words and journey log to retell the story in your own words — <strong>bold each gold word</strong> when you use it!
+    </div>
+    <button class="restart-btn" data-next="intro" data-delta='{}' data-opttext="">↺ Play again with different choices</button>
+  </div>`;
+}
+
+render('intro');
+</script>
+</body>
+</html>
