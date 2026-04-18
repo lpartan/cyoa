@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Saturday Evening at Bach Dang</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal:       #1a7a7a;
+    --teal-light: #2aa8a8;
+    --teal-dark:  #0f5252;
+    --gold:       #c9a84c;
+    --gold-bg:    #f5e6c0;
+    --night:      #0a1628;
+    --river:      #1b3a5c;
+    --text:       #1a2533;
+    --muted:      #5a6a7a;
+    --surface:    #f0f6f6;
+    --white:      #ffffff;
+    --pip-on:     #1a7a7a;
+    --pip-off:    #cde0e0;
+    --danger:     #c0392b;
+    --flavour-bg: #f0ebf8;
+    --flavour:    #7b5ea7;
+    --radius:     14px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--surface);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 60px;
+  }
+
+  /* ── SCORE BAR ── */
+  #score-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--night);
+    color: var(--white);
+    padding: 10px 16px;
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    border-bottom: 3px solid var(--teal);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.35);
+  }
+
+  .metric {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .metric-label {
+    font-family: 'Baloo 2', cursive;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #9ecfcf;
+    text-transform: uppercase;
+  }
+
+  .pips {
+    display: flex;
+    gap: 3px;
+    align-items: center;
+  }
+
+  .pip {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--pip-off);
+    transition: background 0.3s ease, transform 0.2s ease;
+  }
+
+  .pip.on {
+    background: var(--teal-light);
+    box-shadow: 0 0 6px rgba(42,168,168,0.6);
+  }
+
+  .pip.danger {
+    background: var(--danger);
+    box-shadow: 0 0 6px rgba(192,57,43,0.7);
+  }
+
+  /* ── MAIN CARD ── */
+  #game-area {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 20px 16px;
+  }
+
+  .scene-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(10,22,40,0.10);
+    animation: fadeUp 0.35s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .scene-header {
+    background: linear-gradient(135deg, var(--teal-dark) 0%, var(--teal) 60%, var(--teal-light) 100%);
+    padding: 22px 24px 18px;
+    color: var(--white);
+  }
+
+  .scene-header.flavour {
+    background: linear-gradient(135deg, #4a3570 0%, var(--flavour) 100%);
+  }
+
+  .scene-header.ending {
+    background: linear-gradient(135deg, #0f3d2e 0%, #1a7a4a 60%, #2aaa6e 100%);
+  }
+
+  .scene-header.failure {
+    background: linear-gradient(135deg, #3d0f0f 0%, var(--danger) 100%);
+  }
+
+  .scene-type-label {
+    font-family: 'Baloo 2', cursive;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.75;
+    margin-bottom: 6px;
+  }
+
+  .flavour .scene-type-label::before { content: "✨ "; }
+
+  .scene-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.5rem;
+    font-weight: 800;
+    line-height: 1.2;
+  }
+
+  /* ── BODY ── */
+  .scene-body {
+    padding: 22px 24px;
+    line-height: 1.75;
+    font-size: 1.05rem;
+  }
+
+  .scene-body strong { color: var(--teal-dark); }
+
+  /* ── GOLD WORD BOX ── */
+  .gold-box {
+    background: var(--gold-bg);
+    border: 2px solid var(--gold);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin: 18px 0;
+    font-family: Arial, sans-serif;
+    font-size: 0.92rem;
+    line-height: 1.65;
+  }
+
+  .gold-box .gb-title { font-size: 0.97rem; margin-bottom: 4px; }
+  .gold-box .gb-meaning { margin-bottom: 6px; }
+  .gold-box .gb-collocations-label { font-weight: bold; }
+  .gold-box ul { list-style: none; padding-left: 10px; }
+  .gold-box ul li::before { content: "• "; color: var(--gold); }
+
+  /* ── OPTIONS ── */
+  .options { padding: 0 24px 24px; display: flex; flex-direction: column; gap: 10px; }
+
+  .option-btn {
+    background: var(--white);
+    border: 2px solid #d0e8e8;
+    border-radius: 10px;
+    padding: 13px 16px;
+    text-align: left;
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.98rem;
+    line-height: 1.5;
+    color: var(--text);
+    transition: border-color 0.2s, background 0.2s, transform 0.15s;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .option-btn:hover {
+    border-color: var(--teal);
+    background: #e8f5f5;
+    transform: translateX(3px);
+  }
+
+  .option-label {
+    font-family: 'Baloo 2', cursive;
+    font-weight: 800;
+    font-size: 1rem;
+    color: var(--teal);
+    min-width: 20px;
+  }
+
+  .option-text { flex: 1; }
+
+  .option-deltas {
+    font-size: 0.78rem;
+    color: var(--muted);
+    white-space: nowrap;
+    margin-top: 4px;
+  }
+
+  .delta-pos { color: #1a7a4a; font-weight: 700; }
+  .delta-neg { color: var(--danger); font-weight: 700; }
+
+  .continue-btn {
+    display: inline-block;
+    margin: 0 24px 24px;
+    padding: 12px 24px;
+    background: var(--flavour);
+    color: var(--white);
+    border: none;
+    border-radius: 30px;
+    font-family: 'Baloo 2', cursive;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+  }
+
+  .continue-btn:hover { background: #5a3d8a; transform: scale(1.03); }
+
+  /* ── BACK BUTTON ── */
+  .back-row {
+    padding: 0 24px;
+    margin-bottom: -8px;
+  }
+
+  .back-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.2s;
+  }
+  .back-btn:hover { color: var(--teal); }
+
+  /* ── ENDING ── */
+  .ending-body { padding: 22px 24px; }
+  .ending-body p { margin-bottom: 12px; line-height: 1.75; font-size: 1.05rem; }
+  .ending-journey { background: #e8f5f5; border-left: 4px solid var(--teal); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0; font-style: italic; color: var(--teal-dark); }
+
+  .section-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--teal-dark);
+    margin: 20px 0 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* Word log */
+  .word-log { margin: 0 0 16px; }
+  .word-log-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 7px;
+    font-size: 0.95rem;
+  }
+  .word-log-item span { color: var(--gold); font-size: 1rem; }
+  .word-log-item strong { color: var(--teal-dark); min-width: 90px; }
+  .word-log-item em { color: var(--muted); font-style: normal; }
+
+  /* Score final */
+  .final-scores {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 8px 0 16px;
+  }
+  .final-score-chip {
+    background: var(--night);
+    color: var(--white);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-family: 'Baloo 2', cursive;
+    font-size: 0.95rem;
+    font-weight: 700;
+  }
+
+  /* Retelling */
+  .retelling-toggle {
+    background: var(--gold-bg);
+    border: 2px solid var(--gold);
+    border-radius: 10px;
+    padding: 12px 16px;
+    cursor: pointer;
+    font-family: 'Baloo 2', cursive;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #7a5a00;
+    width: 100%;
+    text-align: left;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.2s;
+  }
+  .retelling-toggle:hover { background: #eedfa0; }
+
+  .retelling-content {
+    background: var(--gold-bg);
+    border: 2px solid var(--gold);
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: none;
+    font-size: 0.93rem;
+    line-height: 1.7;
+    color: #3a2800;
+    margin-bottom: 10px;
+  }
+  .retelling-content.open { display: block; }
+  .retelling-content strong { color: #7a4a00; }
+
+  .dl-row { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .dl-btn {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 2px solid var(--gold);
+    background: var(--white);
+    color: #7a5a00;
+    font-family: 'Baloo 2', cursive;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+  }
+  .dl-btn:hover { background: var(--gold); color: var(--white); }
+
+  /* Writing task */
+  .writing-task {
+    background: #f0f6ff;
+    border: 2px dashed #a0b8d8;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin: 8px 0 16px;
+  }
+  .writing-task p { font-size: 0.93rem; color: var(--river); margin-bottom: 10px; line-height: 1.6; }
+  .writing-lines { display: flex; flex-direction: column; gap: 8px; }
+  .writing-line { border-bottom: 1px solid #a0b8d8; height: 24px; }
+
+  /* Restart */
+  .restart-btn {
+    display: block;
+    width: 100%;
+    margin-top: 16px;
+    padding: 14px;
+    background: var(--teal);
+    color: var(--white);
+    border: none;
+    border-radius: 10px;
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.1rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    letter-spacing: 0.03em;
+  }
+  .restart-btn:hover { background: var(--teal-dark); transform: scale(1.02); }
+
+  /* Intro */
+  .intro-header {
+    background: linear-gradient(160deg, var(--night) 0%, var(--river) 50%, #1a5a6a 100%);
+    padding: 36px 24px 28px;
+    color: var(--white);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .intro-header::after {
+    content: "🌉";
+    position: absolute;
+    right: 20px;
+    bottom: 10px;
+    font-size: 3.5rem;
+    opacity: 0.18;
+  }
+
+  .intro-pretitle {
+    font-family: 'Baloo 2', cursive;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #9ecfcf;
+    margin-bottom: 8px;
+  }
+
+  .intro-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1.15;
+    margin-bottom: 6px;
+  }
+
+  .intro-subtitle {
+    font-size: 0.9rem;
+    opacity: 0.75;
+    font-style: italic;
+  }
+
+  .intro-body {
+    padding: 22px 24px;
+    font-size: 1.02rem;
+    line-height: 1.78;
+  }
+  .intro-body p { margin-bottom: 14px; }
+
+  .intro-meta {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 16px 0;
+  }
+  .meta-chip {
+    background: #e8f5f5;
+    border: 1px solid #b0d8d8;
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 0.82rem;
+    color: var(--teal-dark);
+    font-weight: 700;
+  }
+
+  .start-btn {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--teal) 0%, var(--teal-light) 100%);
+    color: var(--white);
+    border: none;
+    border-radius: 10px;
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.2rem;
+    font-weight: 800;
+    cursor: pointer;
+    margin-top: 4px;
+    transition: opacity 0.2s, transform 0.15s;
+    letter-spacing: 0.03em;
+  }
+  .start-btn:hover { opacity: 0.9; transform: scale(1.02); }
+
+  .credits {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 18px;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+
+<div id="score-bar" style="display:none">
+  <div class="metric">
+    <span class="metric-label">💰 Finance</span>
+    <div class="pips" id="pips-finance"></div>
+  </div>
+  <div class="metric">
+    <span class="metric-label">🎉 Fun</span>
+    <div class="pips" id="pips-fun"></div>
+  </div>
+  <div class="metric">
+    <span class="metric-label">⭐ Confidence</span>
+    <div class="pips" id="pips-confidence"></div>
+  </div>
+</div>
+
+<div id="game-area"></div>
+
+<script>
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+const MAX = 7;
+const START = { finance: 5, fun: 5, confidence: 5 };
+const deltaStore = {};
+
+let state = {
+  finance: 5, fun: 5, confidence: 5,
+  history: [],
+  wordLog: [],
+  journeyLog: [],
+  retellingLog: []
+};
+
+function resetState() {
+  state = {
+    finance: START.finance, fun: START.fun, confidence: START.confidence,
+    history: [], wordLog: [], journeyLog: [], retellingLog: []
+  };
+}
+
+function applyDelta(d) {
+  state.finance    = Math.min(MAX, Math.max(0, state.finance    + (d.finance    || 0)));
+  state.fun        = Math.min(MAX, Math.max(0, state.fun        + (d.fun        || 0)));
+  state.confidence = Math.min(MAX, Math.max(0, state.confidence + (d.confidence || 0)));
+}
+
+function checkFailure() {
+  return state.finance <= 0 || state.fun <= 0 || state.confidence <= 0;
+}
+
+function renderPips() {
+  ['finance','fun','confidence'].forEach(m => {
+    const el = document.getElementById('pips-' + m);
+    el.innerHTML = '';
+    for (let i = 1; i <= MAX; i++) {
+      const pip = document.createElement('div');
+      pip.className = 'pip' + (i <= state[m] ? (state[m] <= 1 ? ' danger' : ' on') : '');
+      el.appendChild(pip);
+    }
+  });
+}
+
+function formatDelta(d) {
+  let parts = [];
+  [['💰', d.finance],['🎉', d.fun],['⭐', d.confidence]].forEach(([icon, v]) => {
+    if (!v || v === 0) return;
+    const cls = v > 0 ? 'delta-pos' : 'delta-neg';
+    parts.push(`<span class="${cls}">${icon}${v > 0 ? '+' : ''}${v}</span>`);
+  });
+  return parts.join(' ');
+}
+
+// ═══════════════════════════════════════════
+// SCENE DATA
+// ═══════════════════════════════════════════
+const scenes = {
+
+  intro: {
+    type: 'intro',
+    title: 'Saturday Evening at Bach Dang',
+    body: `<p>You are a 14-year-old student at Ali's English class in Thu Dau Mot. Tonight is special — you, <strong>TVD (Tina)</strong>, <strong>Miss Nhi</strong>, and <strong>Mr Quan</strong> have finally convinced your parents to let you spend Saturday evening at Bach Dang night market park, just the four of you, from 19:30 to 21:30.</p>
+           <p>You each have <strong>500,000 VND</strong> in your pocket. The river lights are already shimmering. The smell of grilled corn and bánh tráng nướng is drifting across the park.</p>
+           <p>Two hours of freedom. The only question is how you use it.</p>`,
+    options: [{ text: 'Begin the evening →', next: 's1', delta: {} }]
+  },
+
+  s1: {
+    type: 'choice', sceneNum: 1,
+    title: 'The Gate',
+    goldword: 'arrive',
+    wordBox: {
+      label: 'WORD OF THE SCENE', word: 'arrive', pos: 'verb',
+      meaning: 'to reach a place after travelling',
+      collocations: ['arrive at a destination','arrive on time','arrive together']
+    },
+    retelling: 'The group <strong>arrived</strong> at Bach Dang night market park at 19:30. Faced with competing attractions, the player chose an initial direction — rides, food, or a walk along the lake path — which determined the group\'s first activity of the evening.',
+    body: `<p>You push through the entrance gate at Bach Dang and stop for a second. The park is bigger and louder than you expected — coloured lights on the rides, smoke from the food stalls, groups of teenagers from other schools walking in every direction.</p>
+           <p>TVD is already pointing at the rides. Miss Nhi is looking at the food. Mr Quan is just looking around, not sure where to go first. Your parents <strong>arrive</strong> in two hours to take you home. Right now, everything is possible.</p>`,
+    options: [
+      { label:'A', text: 'Follow TVD to the ride queue — she\'s already walking fast.', next:'s2', delta:{fun:1,confidence:1}, deltaDisplay:{fun:1,confidence:1} },
+      { label:'B', text: 'Head to the food stalls first — everyone is hungry anyway.', next:'s3', delta:{finance:1,fun:1}, deltaDisplay:{finance:1,fun:1} },
+      { label:'C', text: 'Walk along the lake path first — you want to see the whole park.', next:'s4', delta:{finance:-1,confidence:-1}, deltaDisplay:{finance:-1,confidence:-1} }
+    ]
+  },
+
+  s2: {
+    type: 'choice', sceneNum: 2,
+    title: 'The Ride Queue',
+    goldword: 'nervous',
+    wordBox: {
+      label: 'WORD OF THE SCENE', word: 'nervous', pos: 'adjective',
+      meaning: 'feeling worried or a little scared about something',
+      collocations: ['feel nervous','nervous about something','nervous laugh']
+    },
+    retelling: 'At the ride queue, the group considered the cost and Quan\'s visible discomfort. The player chose either to proceed enthusiastically, to ride once then monitor finances, or to remain on the ground. Quan appeared <strong>nervous</strong> throughout.',
+    body: `<p>The ride queue is long but it moves fast. A spinning gondola goes up and over and the people on it scream and then laugh. TVD wants to go on it twice. You check the price — 40,000 VND per person, per ride.</p>
+           <p>Mr Quan looks a little <strong>nervous</strong> but he won't say so. Miss Nhi is watching the people coming off — they all look dizzy and happy.</p>`,
+    options: [
+      { label:'A', text: 'Go on the ride with everyone — even Quan. It will be good for him.', next:'s5', delta:{finance:-1,fun:1,confidence:1}, deltaDisplay:{finance:-1,fun:1,confidence:1} },
+      { label:'B', text: 'Go on the ride once, then check how much money you have left.', next:'s6', delta:{fun:1}, deltaDisplay:{fun:1} },
+      { label:'C', text: 'Skip the ride — watch the others go first and take photos.', next:'s7', delta:{confidence:1}, deltaDisplay:{confidence:1} }
+    ]
+  },
+
+  s3: {
+    type: 'choice', sceneNum: 3,
+    title: 'The Food Stalls',
+    goldword: 'choose',
+    wordBox: {
+      label: 'WORD OF THE SCENE', word: 'choose', pos: 'verb',
+      meaning: 'to decide which thing you want from several options',
+      collocations: ['choose carefully','choose between options','choose a favourite']
+    },
+    retelling: 'At the food stalls, the player made a spending decision. Choices ranged from immediate full expenditure on street food to a cautious approach of delaying consumption. Miss Nhi expressed interest in the dessert stall. The player <strong>chose</strong> between enjoyment, social attentiveness, and financial restraint.',
+    body: `<p>The food stalls stretch along the river side of the park. There is bánh tráng nướng, grilled corn, fried quail eggs, and at the end, a dessert stall with six types of chè. The smells are very bad and very good at the same time.</p>
+           <p>TVD immediately orders the biggest bánh tráng nướng. You have to <strong>choose</strong> — do you eat now, or save your money for later? Miss Nhi is watching the dessert stall.</p>`,
+    options: [
+      { label:'A', text: 'Order the same as TVD — big, greasy, delicious. You only live once.', next:'s5', delta:{finance:-1,fun:1}, deltaDisplay:{finance:-1,fun:1} },
+      { label:'B', text: 'Try a small snack now and take Miss Nhi to the dessert stall later.', next:'s6', delta:{finance:-1,fun:1,confidence:1}, deltaDisplay:{finance:-1,fun:1,confidence:1} },
+      { label:'C', text: "Don't eat anything yet — you want to save your money for the rides.", next:'s8', delta:{finance:1}, deltaDisplay:{finance:1} }
+    ]
+  },
+
+  s4: {
+    type: 'flavour', sceneNum: 4,
+    title: 'The Lake Path',
+    goldword: 'quiet',
+    wordBox: {
+      label: 'WORD OF THE SCENE', word: 'quiet', pos: 'adjective',
+      meaning: 'with very little noise; calm and peaceful',
+      collocations: ['quiet place','stay quiet','quiet moment']
+    },
+    retelling: 'The player and Quan took a brief walk along the lake path, away from the main activity. The detour was <strong>quiet</strong> and uneventful. Quan made a brief remark in English. The group subsequently rejoined the others at the ride queue.',
+    body: `<p>You walk down the lake path before the others can argue. The path goes along the edge of the park, away from the lights. The water is dark and flat.</p>
+           <p>Mr Quan walks beside you and says nothing for a moment. Then he says, in English: <em>"It is <strong>quiet</strong> here."</em></p>
+           <p>You nod. That is true. It is quiet. Above the park on the other side you can see the gondola ride going up and over. You both watch it for a moment. Then TVD calls from behind you — she found the ride queue.</p>`,
+    continueNext: 's2'
+  },
+
+  s5: {
+    type: 'choice', sceneNum: 5,
+    title: 'New Faces',
+    goldword: 'friendly',
+    wordBox: {
+      label: 'WORD OF THE SCENE', word: 'friendly', pos: 'adjective',
+      meaning: 'kind and pleasant; easy to talk to',
+      collocations: ['friendly person','friendly smile','friendly conversation']
+    },
+    retelling: 'The group encountered students from another school. One student made an approach. The player responded with varying degrees of openness. The approaching student appeared <strong>friendly</strong>. Nhi and Quan remained reluctant to engage.',
+    body: `<p>In the queue — or near the food stalls — you notice a group of four teenagers from a different school. Their uniforms have a different colour. One of them — a girl — looks at your group and smiles.</p>
+           <p>TVD looks at you. Miss Nhi looks at the floor. Mr Quan looks at his phone. The girl takes one step towards you. She seems very <strong>friendly</strong>.</p>`,
+    options: [
+      { label:'A', text: 'Smile back and say hello — TVD will help you talk to them.', next:'s9', delta:{fun:1,confidence:1}, deltaDisplay:{fun:1,confidence:1} },
+      { label:'B', text: "Look away and pretend you didn't see her.", next:'s10', delta:{confidence:-1}, deltaDisplay:{confidence:-1} },
+      { label:'C', text: "Let TVD do the talking — you stay close to Miss Nhi.", next:'s11', delta:{fun:1}, deltaDisplay:{fun:1} }
+    ]
+  },
+
+  s6: {
+    type: 'choice', sceneNum: 6,
+    title: 'The Budget Check',
+    goldword: 'spend',
+    wordBox: {
+      label: 'WORD OF THE SCENE', word: 'spend', pos: 'verb',
+      meaning: 'to use money to pay for something',
+      collocations: ['spend money','spend too much','spend wisely']
+    },
+    retelling: 'The group paused to assess remaining finances. TVD proposed further expenditure. The player <strong>spent</strong> either cautiously, in accordance with TVD\'s plan, or impulsively by covering another\'s costs. Financial standing at this point varied significantly depending on prior choices.',
+    body: `<p>You find a bench and everyone takes out their money to count. TVD has already spent 90,000 VND. Mr Quan has spent almost nothing. You check your own wallet.</p>
+           <p>TVD suggests one more round on the ride, plus chè for everyone at the end — that will cost another 120,000 VND. You think about how to <strong>spend</strong> what you have left.</p>`,
+    options: [
+      { label:'A', text: 'Say no to the extra ride — just the chè. You want money left over.', next:'s9', delta:{finance:1}, deltaDisplay:{finance:1} },
+      { label:'B', text: "Agree to TVD's plan — one more ride and dessert for everyone.", next:'s10', delta:{finance:-1,fun:1}, deltaDisplay:{finance:-1,fun:1} },
+      { label:'C', text: "Offer to pay for Nhi's chè too — even though your money is almost gone.", next:'s11', delta:{finance:-2,fun:1,confidence:-1}, deltaDisplay:{finance:-2,fun:1,confidence:-1} }
+    ]
+  },
+
+  s7: {
+    type: 'choice', sceneNum: 7,
+    title: "Quan's Moment",
+    goldword: 'encourage',
+    wordBox: {
+      label: 'WORD OF THE SCENE', word: 'encourage', pos: 'verb',
+      meaning: 'to say or do something that gives someone confidence to try',
+      collocations: ['encourage a friend','encourage someone to speak','feel encouraged']
+    },
+    retelling: 'The group encountered the other school\'s students again. A student addressed Quan directly, prompting visible discomfort. The player chose either to <strong>encourage</strong> Quan, to intervene indirectly, or to remain passive. The response determined the social outcome of the interaction.',
+    body: `<p>You are sitting on a wall near the ride exit, watching. Quan is beside you. The group from the other school walks past. The friendly girl from before sees Quan and slows down slightly.</p>
+           <p>She says: <em>"Did you go on the ride?"</em> Quan's face goes completely red. He says nothing. She waits. TVD looks at you.</p>
+           <p>This is the moment. You could <strong>encourage</strong> Quan to answer, or say something yourself, or do nothing at all.</p>`,
+    options: [
+      { label:'A', text: "Nudge Quan gently and say: 'Go on, Quan — tell her.'", next:'s9', delta:{fun:1,confidence:1}, deltaDisplay:{fun:1,confidence:1} },
+      { label:'B', text: "Answer for Quan quietly — just enough to keep the conversation going.", next:'s10', delta:{confidence:1}, deltaDisplay:{confidence:1} },
+      { label:'C', text: "Say nothing. Look at your phone. The moment passes.", next:'s11', delta:{fun:-1,confidence:-1}, deltaDisplay:{fun:-1,confidence:-1} }
+    ]
+  },
+
+  s8: {
+    type: 'flavour', sceneNum: 8,
+    title: 'Something Strange',
+    goldword: 'notice',
+    wordBox: {
+      label: 'WORD OF THE SCENE', word: 'notice', pos: 'verb',
+      meaning: 'to see or become aware of something',
+      collocations: ['notice something strange','notice a change','hard to notice']
+    },
+    retelling: 'Near the dessert stall, the player observed a brief and unexplained encounter with an elderly woman. The woman <strong>noticed</strong> the player and gestured toward the ride before disappearing without explanation. No cause was established. The group continued to the budget review.',
+    body: `<p>You are standing alone near the dessert stall for a moment. The others are a few steps ahead.</p>
+           <p>A very old woman is sitting on a small plastic stool beside a pot of chè. She is not selling anything. She looks at you and <strong>notices</strong> something — you are not sure what. She holds up one finger, slowly, and then points to the ride.</p>
+           <p>You turn to look. When you turn back, she is gone. The stool is there. The pot is there. She is not.</p>
+           <p>TVD is calling you from the next stall.</p>`,
+    continueNext: 's6'
+  },
+
+  s9: {
+    type: 'choice', sceneNum: 9,
+    title: 'The Last Half Hour',
+    goldword: 'suggest',
+    wordBox: {
+      label: 'WORD OF THE SCENE', word: 'suggest', pos: 'verb',
+      meaning: 'to give an idea for others to think about',
+      collocations: ['suggest a plan','suggest going somewhere','suggest to a friend']
+    },
+    retelling: 'With thirty minutes remaining, the group had successfully exchanged contacts with students from another school and Nhi\'s mood had improved. The player <strong>suggested</strong> the final activity — a calm conclusion, a last ride, or shared dessert — shaping the emotional tone of the evening\'s end.',
+    body: `<p>It is 21:00. You have thirty minutes left. The park is still full. The friends from the other school have exchanged numbers with TVD — they go to a school near the river.</p>
+           <p>Miss Nhi has finally relaxed — she is laughing at something Quan said. TVD looks at you and says: <em>"What do you <strong>suggest</strong> we do for the last thirty minutes?"</em></p>`,
+    options: [
+      { label:'A', text: 'Sit by the river, eat the last of your snacks, and watch the park wind down.', next:'e1', delta:{finance:1,confidence:1}, deltaDisplay:{finance:1,confidence:1} },
+      { label:'B', text: 'One more ride — just the small one — before the parents arrive.', next:'e2', delta:{fun:1}, deltaDisplay:{fun:1} },
+      { label:'C', text: 'Buy chè for everyone and sit somewhere quiet to eat it.', next:'e3', delta:{finance:-1,fun:1}, deltaDisplay:{finance:-1,fun:1} }
+    ]
+  },
+
+  s10: {
+    type: 'choice', sceneNum: 10,
+    title: 'The Phone Call',
+    goldword: 'explain',
+    wordBox: {
+      label: 'WORD OF THE SCENE', word: 'explain', pos: 'verb',
+      meaning: 'to say clearly why something happened or how something works',
+      collocations: ['explain a situation','explain to someone','hard to explain']
+    },
+    retelling: 'The player received an early pickup call. The group was informed that the evening would end sooner than expected. The player chose to <strong>explain</strong> the situation calmly, to prioritise a final ride, or to react with frustration. Nhi confirmed a similar situation with her own parents.',
+    body: `<p>Your phone buzzes. It is your mum. She says she is coming early — at 21:15, not 21:30. You have fifteen fewer minutes than you thought.</p>
+           <p>TVD hears and makes a face. You have to <strong>explain</strong> to the group that tonight is ending sooner than planned. Miss Nhi nods — she says her mum called too. Quan looks disappointed. The friends from the other school are still nearby.</p>`,
+    options: [
+      { label:'A', text: 'Explain calmly, say goodbye to the new friends properly, and wait by the gate.', next:'e2', delta:{confidence:1}, deltaDisplay:{confidence:1} },
+      { label:'B', text: 'Explain quickly, then rush to the ride for one last go.', next:'e3', delta:{fun:1}, deltaDisplay:{fun:1} },
+      { label:'C', text: 'Get upset about it — complain to the group that the night is ruined.', next:'e4', delta:{fun:-1,confidence:-1}, deltaDisplay:{fun:-1,confidence:-1} }
+    ]
+  },
+
+  s11: {
+    type: 'choice', sceneNum: 11,
+    title: 'The Argument',
+    goldword: 'agree',
+    wordBox: {
+      label: 'WORD OF THE SCENE', word: 'agree', pos: 'verb',
+      meaning: 'to have the same opinion as someone, or to say yes to a plan',
+      collocations: ['agree with a friend','agree on a plan','hard to agree']
+    },
+    retelling: 'A minor dispute arose between TVD and Quan over the remaining snack budget. The player intervened to help them <strong>agree</strong>, proposed neutrality, or disengaged entirely. Nhi observed but did not act. The other school\'s students were present during the disagreement.',
+    body: `<p>TVD and Quan are not agreeing about something small — whether to spend the last of the group's shared snack money on one big portion of bánh tráng to split, or to keep it for the ride. Their voices are getting louder.</p>
+           <p>The group from the other school is nearby. Miss Nhi is looking at you. Someone needs to help them <strong>agree</strong>.</p>`,
+    options: [
+      { label:'A', text: 'Step in and make a decision for them — buy the food, end the argument.', next:'e3', delta:{fun:-1,confidence:1}, deltaDisplay:{fun:-1,confidence:1} },
+      { label:'B', text: "Suggest they both stop and agree to do neither — save the money.", next:'e4', delta:{}, deltaDisplay:{} },
+      { label:'C', text: "Walk away — it's their argument, not yours. Let them sort it out.", next:'e5', delta:{fun:1,confidence:-1}, deltaDisplay:{fun:1,confidence:-1} }
+    ]
+  },
+
+  e1: {
+    type: 'ending', endingType: 'best',
+    title: 'The Best Night',
+    journey: 'You stayed calm, spent wisely, and helped your friends enjoy the night.',
+    body: `<p>Your mum pulls up at 21:30 exactly. You get in the car with 60,000 VND still in your pocket.</p>
+           <p>You said hello to people from another school. Quan smiled at the girl from the ride queue — just once, but you saw it. Miss Nhi laughed. TVD already has three new contacts in her phone.</p>
+           <p>On the way home, nobody says anything for a minute. Then TVD says: <em>"We're doing this again in the summer."</em> Everyone agrees.</p>`
+  },
+
+  e2: {
+    type: 'ending', endingType: 'good',
+    title: 'Good Enough',
+    journey: 'A solid night. Some choices worked out, some didn\'t — that\'s normal.',
+    body: `<p>The night was good. Not perfect — maybe you spent a little too much, or missed one moment you could have taken — but good.</p>
+           <p>Your parents arrive and the group splits up quickly at the gate. On the way home you look at your phone. TVD has already sent a message in the group chat: a blurry photo of all four of you near the ride, taken by someone from the other school.</p>
+           <p>You save it.</p>`
+  },
+
+  e3: {
+    type: 'ending', endingType: 'quiet',
+    title: 'The Quiet One',
+    journey: 'You stayed true to yourself, even when it meant stepping back.',
+    body: `<p>You end the night sitting quietly near the river while the others run for one last thing. You are a little outside the group tonight — not unhappy, just watching.</p>
+           <p>You learned something about yourself: you are more comfortable on the edge than in the middle. That is not a bad thing.</p>
+           <p>Your mum arrives and you walk to the car. Miss Nhi waves goodbye from across the car park.</p>`
+  },
+
+  e4: {
+    type: 'ending', endingType: 'spent',
+    title: 'Spent It All',
+    journey: 'Maximum fun, minimum savings. Some nights are like that.',
+    body: `<p>You get in the car with 15,000 VND left. Your mum asks how it went. You say: <em>"Really good."</em> That is true.</p>
+           <p>You had bánh tráng, you went on two rides, you ate chè, and you spent basically everything. Your dad will ask tomorrow how much you saved.</p>
+           <p>You are not sure what you will say. But tonight was worth it.</p>`
+  },
+
+  e5: {
+    type: 'ending', endingType: 'failure',
+    title: 'Not Your Best Night',
+    journey: 'Tonight didn\'t go the way you hoped. Think about what you would change.',
+    body: `<p>Something went wrong tonight. Maybe you spent too much too early and had to ask TVD to cover you — that felt bad. Maybe you walked away when a friend needed you. Maybe the budget ran out before the fun did.</p>
+           <p>The parents arrive and nobody is really talking. On the way home, you look out the window.</p>
+           <p><em>Next time,</em> you think, <em>I will do it differently.</em></p>`
+  }
+};
+
+// word data for all non-ending scenes
+const ALL_WORDS = ['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11'].map(id => {
+  const s = scenes[id];
+  return { id, word: s.goldword, wb: s.wordBox };
+});
+
+// ═══════════════════════════════════════════
+// RENDERER
+// ═══════════════════════════════════════════
+
+function renderScoreBar(show) {
+  document.getElementById('score-bar').style.display = show ? 'flex' : 'none';
+  renderPips();
+}
+
+function goldBox(wb) {
+  return `<div class="gold-box">
+    <div class="gb-title">⭐ <strong>${wb.label}:</strong> <strong>${wb.word}</strong> <em>(${wb.pos})</em></div>
+    <div class="gb-meaning"><strong>Meaning:</strong> ${wb.meaning}</div>
+    <div><span class="gb-collocations-label">Collocations:</span>
+    <ul>
+      <li><em>${wb.collocations[0]}</em></li>
+      <li><em>${wb.collocations[1]}</em></li>
+      <li><em>${wb.collocations[2]}</em></li>
+    </ul></div>
+  </div>`;
+}
+
+function renderScene(id) {
+  const s = scenes[id];
+  if (!s) return;
+
+  const isEnding = s.type === 'ending';
+  const isFlavour = s.type === 'flavour';
+  const isIntro = s.type === 'intro';
+
+  renderScoreBar(!isIntro);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  let html = '';
+
+  if (isIntro) {
+    html = `<div class="scene-card">
+      <div class="intro-header">
+        <div class="intro-pretitle">Ali's English Class · Thu Dau Mot, Việt Nam</div>
+        <div class="intro-title">Saturday Evening<br>at Bach Dang</div>
+        <div class="intro-subtitle">A story about one night, three friends, and 500,000 VND</div>
+      </div>
+      <div class="intro-body">
+        ${s.body}
+        <div class="intro-meta">
+          <span class="meta-chip">💰 Finance: ${START.finance}</span>
+          <span class="meta-chip">🎉 Fun: ${START.fun}</span>
+          <span class="meta-chip">⭐ Confidence: ${START.confidence}</span>
+          <span class="meta-chip">📍 A2 Level</span>
+        </div>
+        <button class="start-btn" onclick="goTo('s1')">Begin the Evening →</button>
+      </div>
+      <div class="credits">Created by Allistair Elliott & Laurence · Ali's English Class · v1.4</div>
+    </div>`;
+    document.getElementById('game-area').innerHTML = html;
+    return;
+  }
+
+  const headerClass = isEnding
+    ? (s.endingType === 'failure' ? 'ending failure' : 'ending')
+    : (isFlavour ? 'flavour' : '');
+
+  const typeLabel = isEnding ? '🏁 Ending'
+    : isFlavour ? 'A moment to reflect'
+    : `Scene ${s.sceneNum}`;
+
+  html += `<div class="scene-card">`;
+
+  // Back button (not on endings or intro)
+  if (!isEnding && state.history.length > 0) {
+    html += `<div class="back-row"><button class="back-btn" onclick="goBack()">← Back</button></div>`;
+  }
+
+  html += `<div class="scene-header ${headerClass}">
+    <div class="scene-type-label">${typeLabel}</div>
+    <div class="scene-title">${s.title}</div>
+  </div>`;
+
+  if (isEnding) {
+    html += buildEnding(s);
+  } else {
+    html += `<div class="scene-body">${s.body}${goldBox(s.wordBox)}</div>`;
+
+    if (isFlavour) {
+      html += `<button class="continue-btn" onclick="goTo('${s.continueNext}')">Continue →</button>`;
+    } else {
+      html += '<div class="options">';
+      s.options.forEach((opt, idx) => {
+        const deltaHtml = formatDelta(opt.deltaDisplay || opt.delta);
+        const deltaRow = deltaHtml ? '<div class="option-deltas">' + deltaHtml + '</div>' : '';
+        const key = id + '_' + idx;
+        deltaStore[key] = opt.delta;
+        html += '<button class="option-btn" onclick="choose(\'' + id + '\',\'' + opt.next + '\',\'' + key + '\')">'
+          + '<span class="option-label">' + opt.label + '</span>'
+          + '<span class="option-text">' + opt.text + deltaRow + '</span>'
+          + '</button>';
+      });
+      html += '</div>';
+    }
+  }
+
+  html += `</div>`;
+  document.getElementById('game-area').innerHTML = html;
+}
+
+function buildEnding(s) {
+  // Compile word log
+  let wlogHtml = '';
+  if (state.wordLog.length > 0) {
+    wlogHtml = state.wordLog.map(w => {
+      const wb = scenes[w].wordBox;
+      return `<div class="word-log-item"><span>⭐</span><strong>${wb.word}</strong><em>${wb.pos} — ${wb.meaning}</em></div>`;
+    }).join('');
+  } else {
+    wlogHtml = '<div class="word-log-item"><em>No words collected yet.</em></div>';
+  }
+
+  // Final scores
+  const scoresHtml = `<div class="final-scores">
+    <div class="final-score-chip">💰 Finance: ${state.finance}/${MAX}</div>
+    <div class="final-score-chip">🎉 Fun: ${state.fun}/${MAX}</div>
+    <div class="final-score-chip">⭐ Confidence: ${state.confidence}/${MAX}</div>
+  </div>`;
+
+  // Composite retelling
+  let compositeHtml = '';
+  if (state.retellingLog.length > 0) {
+    compositeHtml = state.retellingLog.map((r, i) => `<p><strong>${i+1}.</strong> ${r}</p>`).join('');
+  } else {
+    compositeHtml = '<p><em>No retelling available.</em></p>';
+  }
+
+  return `<div class="ending-body">
+    ${s.body}
+    <div class="ending-journey">${s.journey}</div>
+
+    <div class="section-title">Your Scores</div>
+    ${scoresHtml}
+
+    <div class="section-title">Words You Met Tonight</div>
+    <div class="word-log">${wlogHtml}</div>
+
+    <div class="section-title">Your Story in Summary</div>
+    <button class="retelling-toggle" onclick="toggleRetelling()" id="rt-toggle">
+      📖 Show your composite retelling <span id="rt-arrow">▼</span>
+    </button>
+    <div class="retelling-content" id="retelling-box">${compositeHtml}</div>
+    <div class="dl-row">
+      <button class="dl-btn" onclick="downloadTXT()">⬇ Download TXT</button>
+      <button class="dl-btn" onclick="downloadPDF()">⬇ Download PDF</button>
+    </div>
+
+    <div class="section-title">Write Your Own Retelling</div>
+    <div class="writing-task">
+      <p>Using <strong>Reportorial English</strong>, write a short summary of your journey tonight. Write in the third person. Use the goldwords (in bold above). Keep it factual and concise — no feelings, just what happened.</p>
+      <div class="writing-lines">
+        ${Array(10).fill('<div class="writing-line"></div>').join('')}
+      </div>
+    </div>
+
+    <button class="restart-btn" onclick="restartGame()">↺ Play Again</button>
+  </div>`;
+}
+
+function toggleRetelling() {
+  const box = document.getElementById('retelling-box');
+  const arrow = document.getElementById('rt-arrow');
+  box.classList.toggle('open');
+  arrow.textContent = box.classList.contains('open') ? '▲' : '▼';
+}
+
+function downloadTXT() {
+  const lines = state.retellingLog.map((r, i) => `${i+1}. ${r.replace(/<[^>]+>/g,'')}`).join('\n\n');
+  const header = 'SATURDAY EVENING AT BACH DANG\nYour Story in Summary\n\n';
+  const blob = new Blob([header + lines], {type:'text/plain'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'bach_dang_retelling.txt'; a.click();
+}
+
+function downloadPDF() {
+  const lines = state.retellingLog.map((r, i) => `${i+1}. ${r.replace(/<[^>]+>/g,'')}`).join('\n\n');
+  const content = `SATURDAY EVENING AT BACH DANG\nYour Story in Summary\n\n${lines}`;
+  const w = window.open('','_blank');
+  w.document.write(`<html><head><title>Bach Dang Retelling</title>
+  <style>body{font-family:Georgia,serif;max-width:600px;margin:40px auto;line-height:1.8;color:#1a2533;}
+  h1{font-size:1.3rem;margin-bottom:4px;}h2{font-size:1rem;color:#555;margin-bottom:24px;}
+  p{margin-bottom:12px;}strong{color:#1a7a7a;}</style></head><body>
+  <h1>Saturday Evening at Bach Dang</h1><h2>Your Story in Summary</h2>
+  ${state.retellingLog.map((r,i)=>`<p><strong>${i+1}.</strong> ${r}</p>`).join('')}
+  <script>window.onload=()=>window.print()<\/script>
+  </body></html>`);
+  w.document.close();
+}
+
+// ═══════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════
+
+function goTo(id, fromChoice) {
+  const s = scenes[id];
+  if (!s) return;
+
+  // Record word for word log
+  if (s.wordBox && !state.wordLog.includes(id)) {
+    state.wordLog.push(id);
+  }
+  // Record retelling
+  if (s.retelling && !state.retellingLog.some(r => r === s.retelling)) {
+    state.retellingLog.push(s.retelling);
+  }
+
+  renderScene(id);
+}
+
+function choose(fromId, nextId, deltaKey) {
+  const delta = deltaStore[deltaKey] || {};
+  // Save state for back
+  state.history.push({
+    sceneId: fromId,
+    finance: state.finance,
+    fun: state.fun,
+    confidence: state.confidence,
+    wordLogLen: state.wordLog.length,
+    retellingLogLen: state.retellingLog.length
+  });
+
+  applyDelta(delta);
+  renderPips();
+
+  if (checkFailure()) {
+    // Log retelling of current scene if not logged
+    const s = scenes[fromId];
+    if (s && s.retelling && !state.retellingLog.includes(s.retelling)) {
+      state.retellingLog.push(s.retelling);
+    }
+    goTo('e5');
+    return;
+  }
+
+  goTo(nextId);
+}
+
+function goBack() {
+  if (state.history.length === 0) return;
+  const prev = state.history.pop();
+  state.finance = prev.finance;
+  state.fun = prev.fun;
+  state.confidence = prev.confidence;
+  state.wordLog.length = prev.wordLogLen;
+  state.retellingLog.length = prev.retellingLogLen;
+  renderScene(prev.sceneId);
+}
+
+function restartGame() {
+  resetState();
+  renderScoreBar(false);
+  renderScene('intro');
+}
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+renderScene('intro');
+</script>
+</body>
+</html>
